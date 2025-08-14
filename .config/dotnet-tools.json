@@ -6,7 +6,15 @@
       "version": "7.0.3",
       "commands": [
         "fantomas"
-      ]
+      ],
+      "rollForward": false
+    },
+    "fsautocomplete": {
+      "version": "0.78.5",
+      "commands": [
+        "fsautocomplete"
+      ],
+      "rollForward": false
     }
   }
 }
