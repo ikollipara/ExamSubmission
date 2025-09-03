@@ -130,7 +130,7 @@ module SubmissionApplication =
                 $"{state.BaseSubmitPath}\\{datetime}__{formattedUserName}__{name}.txt"
 
             async {
-                use stream = File.Create filename
+                use stream = File.Open(filename, FileMode.CreateNew, FileAccess.Write)
                 use writer = new StreamWriter(stream)
                 do! writer.WriteAsync state.FileToSubmit.Value.Contents |> Async.AwaitTask
                 do! writer.FlushAsync() |> Async.AwaitTask
