@@ -29,6 +29,7 @@ module SubmissionApplication =
         /// Possible Messages that the application can send
         type Msg =
             | SetBasePath of string
+            | ErrorBasePath of string
             | SetUserName of string
             | OpenFileDialog
             | SetFileToSubmit of FileSpec
@@ -52,6 +53,8 @@ module SubmissionApplication =
     /// Contains all file dialog functions.
     module Dialogs =
         open Avalonia.Platform.Storage
+        open Avalonia.Threading
+        open System.Collections.Generic
         open System.IO
         open FSharpPlus
         open Types
@@ -71,7 +74,10 @@ module SubmissionApplication =
                 )
 
             async {
-                let! files = provider.OpenFilePickerAsync options |> Async.AwaitTask
+                let! files =
+                    Dispatcher.UIThread.InvokeAsync<IReadOnlyList<IStorageFile>>(fun () ->
+                        provider.OpenFilePickerAsync options)
+                    |> Async.AwaitTask
 
                 match files |> IReadOnlyList.toArray with
                 | [| file |] ->
@@ -138,12 +144,14 @@ module SubmissionApplication =
                 ReadyToSubmit = false
                 Submitted = false
             },
-            Cmd.OfAsync.perform Config.parse "\\zeta\acad_cs\CS131_Exams\submission.conf" SetBasePath
+            Cmd.OfAsync.either Config.parse "\\\\zeta\\acad_cs\\CS131_Exams\\submission.conf" SetBasePath (fun e ->
+                e.ToString() |> ErrorBasePath)
 
         /// TEA Update Function
         let update (window: Avalonia.FuncUI.Hosts.HostWindow) (msg: Msg) (state: State) =
             match msg with
             | SetBasePath path -> { state with BaseSubmitPath = path }, Cmd.none
+            | ErrorBasePath msg -> { state with StatusText = msg }, Cmd.none
             | SetUserName "" ->
                 {
                     state with
