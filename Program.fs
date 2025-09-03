@@ -125,7 +125,9 @@ module SubmissionApplication =
                 |> _.ToString("o", Globalization.CultureInfo.GetCultureInfo("en-US", false))
 
             let name = state.FileToSubmit.Value.Name
-            let filename = $"{datetime}__{formattedUserName}__{name}.txt"
+
+            let filename =
+                $"{state.BaseSubmitPath}\\{datetime}__{formattedUserName}__{name}.txt"
 
             async {
                 use stream = File.Create filename
@@ -148,7 +150,7 @@ module SubmissionApplication =
                 e.ToString() |> ErrorBasePath)
 
         /// TEA Update Function
-        let update (window: Avalonia.FuncUI.Hosts.HostWindow) (msg: Msg) (state: State) =
+        let update (window: Hosts.HostWindow) (msg: Msg) (state: State) =
             match msg with
             | SetBasePath path -> { state with BaseSubmitPath = path }, Cmd.none
             | ErrorBasePath msg -> { state with StatusText = msg }, Cmd.none
