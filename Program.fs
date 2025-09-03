@@ -195,7 +195,9 @@ module SubmissionApplication =
                     submitExamAsync
                     state
                     (fun () -> SubmissionResult(Ok "Exam Submitted Successfully. You may close the window."))
-                    (fun _ ->
+                    (fun e ->
+                        e.ToString() |> printfn "%s\n"
+
                         SubmissionResult(
                             Error
                                 "Something went wrong. Try to submit in a little bit. If this continues to occur, please contact the instructor."
