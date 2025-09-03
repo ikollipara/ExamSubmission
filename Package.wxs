@@ -1,6 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Id="Cune.ExamSubmission" Name="Exam Submission"
-           Manufacturer="CUNE" Version="0.0.1">
-    <File Source="ExamSubmission.exe" />
-  </Package>
+
+  <!-- Define the product metadata -->
+  <Package Name="ExamSubmission"
+           Manufacturer="CUNE"
+           Version="1.0.0.0"
+           UpgradeCode="*"
+           Scope="perMachine"
+           InstallerVersion="500" />
+
+  <!-- The main product -->
+  <Product>
+
+    <!-- Define the installation directory -->
+    <Feature Id="MainFeature" Title="ExamSubmission" Level="1">
+      <ComponentGroupRef Id="PublishComponents"/>
+    </Feature>
+
+  </Product>
+
+  <!-- Harvest all files from the publish output directory -->
+  <Fragment>
+    <Directory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="ExamSubmission"/>
+    </Directory>
+
+    <ComponentGroup Id="PublishComponents" Directory="INSTALLFOLDER">
+      <!-- Add all files from publish dir at build time -->
+      <Files Source="$(var.PublishDir)" />
+    </ComponentGroup>
+  </Fragment>
+
 </Wix>
