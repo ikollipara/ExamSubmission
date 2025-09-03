@@ -16,6 +16,7 @@ jobs:
 
     env:
       PROJECT: ExamSubmission.fsproj
+      WIXPROJ: ExamSubmission.wixproj
       CONFIGURATION: Release
       RUNTIME: win-x64
       SELF_CONTAINED: false
@@ -37,14 +38,8 @@ jobs:
       - name: Publish app for Windows
         run: dotnet publish $env:PROJECT -c $env:CONFIGURATION -r $env:RUNTIME --self-contained $env:SELF_CONTAINED -o publish
 
-      - name: Install WiX v4 CLI
-        run: dotnet tool install --global wix
-
-      - name: Add WiX to PATH
-        run: echo "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Build MSI with WiX
-        run: wix build $env:WIX_SOURCE -arch x64 -d PublishDir=publish -o $env:MSI_NAME
+      - name: Build
+        run: dotnet build $env:WIXPROJ
 
       - name: Upload MSI artifact
         uses: actions/upload-artifact@v4
