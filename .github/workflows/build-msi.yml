@@ -50,4 +50,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: msi-package
-          path: ${{ env.MSI_NAME }}
+          path: |
+            ${{ env.MSI_NAME }}
+            cab*.cab
