@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
-  <!-- Define the product metadata -->
-  <Package Name="ExamSubmission"
-           Manufacturer="CUNE"
-           Version="1.0.0.0"
-           UpgradeCode="*"
-           Scope="perMachine"
-           InstallerVersion="500" />
+  <Package
+      Name="ExamSubmission"
+      Manufacturer="CUNE"
+      Version="1.0.0.0"
+      UpgradeCode="{D2B77C9E-AB85-4F13-8B67-123456789ABC}"
+      Scope="perMachine"
+      InstallerVersion="500">
 
-  <!-- The main product -->
-  <Product>
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="ExamSubmission"/>
+    </StandardDirectory>
 
-    <!-- Define the installation directory -->
     <Feature Id="MainFeature" Title="ExamSubmission" Level="1">
       <ComponentGroupRef Id="PublishComponents"/>
     </Feature>
+  </Package>
 
-  </Product>
-
-  <!-- Harvest all files from the publish output directory -->
   <Fragment>
-    <Directory Id="ProgramFilesFolder">
-      <Directory Id="INSTALLFOLDER" Name="ExamSubmission"/>
-    </Directory>
-
+    <!-- Harvest published files -->
     <ComponentGroup Id="PublishComponents" Directory="INSTALLFOLDER">
-      <!-- Add all files from publish dir at build time -->
-      <Files Source="$(var.PublishDir)" />
+      <Files Include="$(var.PublishDir)\**\*.*"/>
     </ComponentGroup>
   </Fragment>
 
