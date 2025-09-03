@@ -4,9 +4,10 @@
   <Package
       Name="ExamSubmission"
       Manufacturer="CUNE"
-      Version="1.0.0.0"
+      Version="1.0.0.1"
       UpgradeCode="{D2B77C9E-AB85-4F13-8B67-123456789ABC}"
       Scope="perMachine"
+      Compressed="yes"
       InstallerVersion="500">
 
     <StandardDirectory Id="ProgramFilesFolder">
