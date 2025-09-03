@@ -1,0 +1,53 @@
+name: Build MSI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-msi:
+    runs-on: windows-latest   # Windows runner is required for MSI
+    defaults:
+      run:
+        shell: pwsh
+
+    env:
+      PROJECT: ExamSubmission.fsproj
+      CONFIGURATION: Release
+      RUNTIME: win-x64
+      SELF_CONTAINED: false
+      WIX_SOURCE: Package.wxs
+      MSI_NAME: ExamSubmission.msi
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore $env:PROJECT
+
+      - name: Publish app for Windows
+        run: dotnet publish $env:PROJECT -c $env:CONFIGURATION -r $env:RUNTIME --self-contained $env:SELF_CONTAINED -o publish
+
+      - name: Install WiX v4 CLI
+        run: dotnet tool install --global wix
+
+      - name: Add WiX to PATH
+        run: echo "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build MSI with WiX
+        run: wix build $env:WIX_SOURCE -arch x64 -d PublishDir=publish -o $env:MSI_NAME
+
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: msi-package
+          path: ${{ env.MSI_NAME }}

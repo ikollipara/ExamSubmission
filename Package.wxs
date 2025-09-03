@@ -1,0 +1,6 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Id="Cune.ExamSubmission" Name="Exam Submission"
+           Manufacturer="CUNE" Version="0.0.1">
+    <File Source="ExamSubmission.exe" />
+  </Package>
+</Wix>
