@@ -17,13 +17,14 @@ module SubmissionApplication =
         type FileSpec = { Name: string; Contents: string }
 
         /// The State of the Application.
-        type State =
-            { BaseSubmitPath: string
-              StatusText: string
-              UserName: string option
-              FileToSubmit: FileSpec option
-              ReadyToSubmit: bool
-              Submitted: bool }
+        type State = {
+            BaseSubmitPath: string
+            StatusText: string
+            UserName: string option
+            FileToSubmit: FileSpec option
+            ReadyToSubmit: bool
+            Submitted: bool
+        }
 
         /// Possible Messages that the application can send
         type Msg =
@@ -78,9 +79,10 @@ module SubmissionApplication =
                     use reader = new StreamReader(stream)
                     let! contents = reader.ReadToEndAsync() |> Async.AwaitTask
 
-                    return
-                        { Name = file.Name
-                          Contents = contents }
+                    return {
+                        Name = file.Name
+                        Contents = contents
+                    }
                 | _ -> return! Async.raise FailedToReadFile
             }
 
@@ -128,12 +130,14 @@ module SubmissionApplication =
 
         /// Initial state of the application.
         let init () =
-            { BaseSubmitPath = ""
-              StatusText = "Please enter your name and upload a file."
-              UserName = None
-              FileToSubmit = None
-              ReadyToSubmit = false
-              Submitted = false },
+            {
+                BaseSubmitPath = ""
+                StatusText = "Please enter your name and upload a file."
+                UserName = None
+                FileToSubmit = None
+                ReadyToSubmit = false
+                Submitted = false
+            },
             Cmd.OfAsync.perform Config.parse "\\zeta\acad_cs\CS131_Exams\submission.conf" SetBasePath
 
         /// TEA Update Function
@@ -141,31 +145,39 @@ module SubmissionApplication =
             match msg with
             | SetBasePath path -> { state with BaseSubmitPath = path }, Cmd.none
             | SetUserName "" ->
-                { state with
-                    UserName = None
-                    StatusText =
-                        if state.FileToSubmit.IsSome then
-                            "Please input a name."
-                        else
-                            "Please enter your name and upload a file." }
+                {
+                    state with
+                        UserName = None
+                        StatusText =
+                            if state.FileToSubmit.IsSome then
+                                "Please input a name."
+                            else
+                                "Please enter your name and upload a file."
+                }
                 |> fun ns -> ns, checkIfReadyCmd ns
 
             | SetUserName name ->
-                { state with
-                    UserName = Some name
-                    StatusText = "Please input a file." }
+                {
+                    state with
+                        UserName = Some name
+                        StatusText = "Please input a file."
+                }
                 |> fun ns -> ns, checkIfReadyCmd ns
             | OpenFileDialog ->
                 state, Cmd.OfAsync.perform Dialogs.selectPythonFile window.StorageProvider SetFileToSubmit
             | SetFileToSubmit fileSpec ->
-                { state with
-                    FileToSubmit = Some fileSpec
-                    StatusText = "Please input a Name." }
+                {
+                    state with
+                        FileToSubmit = Some fileSpec
+                        StatusText = "Please input a Name."
+                }
                 |> fun ns -> ns, checkIfReadyCmd ns
             | ReadyToSubmit ->
-                { state with
-                    ReadyToSubmit = true
-                    StatusText = "Ready To Submit." },
+                {
+                    state with
+                        ReadyToSubmit = true
+                        StatusText = "Ready To Submit."
+                },
                 Cmd.none
             | SubmitExam ->
                 state,
@@ -181,72 +193,85 @@ module SubmissionApplication =
             | SubmissionResult sr ->
                 match sr with
                 | Ok text ->
-                    { state with
-                        Submitted = true
-                        StatusText = text },
+                    {
+                        state with
+                            Submitted = true
+                            StatusText = text
+                    },
                     Cmd.none
                 | Error text ->
-                    { state with
-                        Submitted = false
-                        StatusText = text },
+                    {
+                        state with
+                            Submitted = false
+                            StatusText = text
+                    },
                     Cmd.none
             | Pass -> state, Cmd.none
 
 
         let view (state: State) (dispatch: Msg -> unit) =
-            DockPanel.create
-                [ DockPanel.children
-                      [ Border.create
-                            [ Border.cornerRadius 15.0
-                              Border.padding 30.0
-                              Border.borderThickness 1.0
-                              Border.child (
-                                  StackPanel.create
-                                      [ StackPanel.spacing 20.0
-                                        StackPanel.horizontalAlignment HorizontalAlignment.Center
-                                        StackPanel.children
-                                            [
+            DockPanel.create [
+                DockPanel.children [
+                    Border.create [
+                        Border.cornerRadius 15.0
+                        Border.padding 30.0
+                        Border.borderThickness 1.0
+                        Border.child (
+                            StackPanel.create [
+                                StackPanel.spacing 20.0
+                                StackPanel.horizontalAlignment HorizontalAlignment.Center
+                                StackPanel.children [
 
-                                              TextBlock.create
-                                                  [ TextBlock.text "CS 131 Exam Submission"
-                                                    TextBlock.fontSize 16.0
-                                                    TextBlock.textAlignment TextAlignment.Center
-                                                    TextBlock.horizontalAlignment HorizontalAlignment.Center ]
+                                    TextBlock.create [
+                                        TextBlock.text "CS 131 Exam Submission"
+                                        TextBlock.fontSize 16.0
+                                        TextBlock.textAlignment TextAlignment.Center
+                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                    ]
 
-                                              TextBlock.create
-                                                  [ TextBlock.text state.StatusText
-                                                    TextBlock.fontSize 16.0
-                                                    TextBlock.textAlignment TextAlignment.Center
-                                                    TextBlock.horizontalAlignment HorizontalAlignment.Center ]
+                                    TextBlock.create [
+                                        TextBlock.text state.StatusText
+                                        TextBlock.fontSize 16.0
+                                        TextBlock.textWrapping TextWrapping.Wrap
+                                        TextBlock.textAlignment TextAlignment.Center
+                                        TextBlock.horizontalAlignment HorizontalAlignment.Center
+                                    ]
 
 
-                                              TextBlock.create
-                                                  [ TextBlock.text "Name:"; TextBlock.margin (0, 10, 0, 0) ]
+                                    TextBlock.create [ TextBlock.text "Name:"; TextBlock.margin (0, 10, 0, 0) ]
 
-                                              TextBox.create
-                                                  [ TextBox.text (Option.defaultValue "" state.UserName)
-                                                    TextBox.onTextChanged (SetUserName >> dispatch)
-                                                    TextBox.width 200.0
-                                                    TextBox.horizontalAlignment HorizontalAlignment.Center ]
+                                    TextBox.create [
+                                        TextBox.text (Option.defaultValue "" state.UserName)
+                                        TextBox.onTextChanged (SetUserName >> dispatch)
+                                        TextBox.width 200.0
+                                        TextBox.horizontalAlignment HorizontalAlignment.Center
+                                    ]
 
-                                              Button.create
-                                                  [ Button.content (
-                                                        state.FileToSubmit
-                                                        |> Option.map _.Name
-                                                        |> Option.defaultValue "Upload File..."
-                                                    )
-                                                    Button.width 200.0
-                                                    Button.height 50.0
-                                                    Button.horizontalAlignment HorizontalAlignment.Center
-                                                    Button.onClick (fun _ -> dispatch OpenFileDialog) ]
+                                    Button.create [
+                                        Button.content (
+                                            state.FileToSubmit
+                                            |> Option.map _.Name
+                                            |> Option.defaultValue "Upload File..."
+                                        )
+                                        Button.width 200.0
+                                        Button.height 50.0
+                                        Button.horizontalAlignment HorizontalAlignment.Center
+                                        Button.onClick (fun _ -> dispatch OpenFileDialog)
+                                    ]
 
-                                              Button.create
-                                                  [ Button.content "Submit"
-                                                    Button.width 120.0
-                                                    Button.horizontalAlignment HorizontalAlignment.Center
-                                                    Button.isEnabled (state.ReadyToSubmit && not state.Submitted)
-                                                    Button.onClick (fun _ -> dispatch SubmitExam) ] ] ]
-                              ) ] ] ]
+                                    Button.create [
+                                        Button.content "Submit"
+                                        Button.width 120.0
+                                        Button.horizontalAlignment HorizontalAlignment.Center
+                                        Button.isEnabled (state.ReadyToSubmit && not state.Submitted)
+                                        Button.onClick (fun _ -> dispatch SubmitExam)
+                                    ]
+                                ]
+                            ]
+                        )
+                    ]
+                ]
+            ]
 
 module Main =
     open Elmish
