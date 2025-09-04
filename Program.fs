@@ -123,6 +123,7 @@ module SubmissionApplication =
             let datetime =
                 DateTime.UtcNow
                 |> _.ToString("o", Globalization.CultureInfo.GetCultureInfo("en-US", false))
+                |> String.replace ":" "-"
 
             let name = state.FileToSubmit.Value.Name
 
